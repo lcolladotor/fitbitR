@@ -2,6 +2,7 @@ Package: fitbitR
 Title: JHSPH Biostat qualifying exam 2013 take home re-take by L.
     Collado-Torres.
 Version: 0.2
+Date: 2013-09-11
 Authors@R: c(person("Leonardo", "Collado-Torres", role = c("aut", "cre"), email
     = "lcollado@jhsph.edu"))
 Description: JHSPH Biostat qualifying exam 2013 take home: analyzing Fitbit
