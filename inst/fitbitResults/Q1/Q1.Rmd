@@ -3,7 +3,7 @@ Question 1
 
 __Goal__: estimate the average number of steps taken per day
 
-Written by [Russo](https://github.com/russojhsph/fitbitR).
+Written by [L. Collado-Torres](http://bit.ly/13MBoy8).
 
 To make it easier for me to write this document, the interpretation of each plot is included as comments in the R code. So toggle the R code to view the comments and interpretation if you are curious.
 
@@ -12,8 +12,8 @@ To make it easier for me to write this document, the interpretation of each plot
 ```{r setup}
 ## Packages used
 library(fitbitR)
-require(xts)
-require(forecast)
+library(xts)
+library(forecast)
 
 ## Load the data
 data <- preprocess(fitbitData)
@@ -54,11 +54,11 @@ Here it is important to note that the sd decreases when using predicted data. Th
 ```{r binday}
 
 ## Summarize the information by day. Drops interval and time. The binDay function is included in fitbitR:
-binDay
+# binDay
 binned <- lapply(all, binDay)
 
 ## Quickly check how the distribution looks now that the data has been binned by day.
-lapply(1:5, function(i) { 
+xx <- lapply(1:5, function(i) { 
 	x <- binned[[i]]
 	hist(x$nSteps, col="light blue", main=paste("Prediction type:", names(binned)[i]), xlab="Number of steps by day", ylim=c(0, 35))
 	return(invisible())
@@ -73,10 +73,9 @@ for(i in 2:5) {
 ```
 
 
-# ARIMA
+# ARIMA binned by day
 
-```{r arima}
-
+```{r arimaBin}
 arimaE <- function(data, type, order="Time") {
 	datac <- data[complete.cases(data),]
 	ts.c <- xts(datac$nSteps, order.by=datac[, order])
@@ -87,68 +86,129 @@ arimaE <- function(data, type, order="Time") {
 	## Fit arima model
 	fit.a <- arima(ts.c)
 	
-	print(fit.a)
 	return(fit.a)
 	
 }
-arimed <- lapply(names(all), function(x) { arimaE(all[[x]], x) })
-names(arimed) <- names(all)
+```
 
+## ARIMA(0, 0, 0)
+
+Below are the ACF plots and model summaries when using ARIMA(0, 0, 0) on the data binned by day.
+
+```{r arimaBin2}
 ## ARIMA with the binned data
 binari <- lapply(names(binned), function(x) { arimaE(binned[[x]], x, order="Date") })
 names(binari) <- names(binned)
+binari
+```
 
+The coefficients are the same using the binned data vs the simple method. However, the SD is smaller.
+
+```{r arimaBin3}
 ## The coefficients are the same using the binned data vs the simple method. However, the SD is smaller.
 binari.sum <- data.frame("Coef" = unlist(lapply(binari, coef)), "SE" = unlist(lapply(binari, function(x) sqrt(x$var.coef["intercept", "intercept"]))))
 binari.sum
-simple
-
 ```
+
+## Auto ARIMA: (0, 0, 1)
 
 Lets try with the forecast package in order to use auto.arima for selecting the ARIMA models.
 
 ```{r forecast}
 
 ## Similar to arimaE function but using auto.arima
-arimaF <- function(data, type, order="Time") {
+arimaF <- function(data, order="Time") {
 	datac <- data[complete.cases(data),]
 	ts.c <- xts(datac$nSteps, order.by=datac[, order])
 	
 	## Fit arima model
 	fit.a <- auto.arima(ts.c)
 	
-	print(fit.a)
 	return(fit.a)
 }
 
-## Fitting with auto-arima. Models were either ARIMA(2, 0, 3) or ARIMA(3, 0, 3).
-arimed2 <- lapply(names(all), function(x) { arimaF(all[[x]], x) })
-names(arimed2) <- names(all)
+```
 
+Auto ARIMA results.
+
+```{r forecast2}
 ## Fit the auto-arima. Note that all models ended up as ARIMA(0, 0, 1) which is equivalent to MA(1)
-binariauto <- lapply(names(binned), function(x) { arimaF(binned[[x]], x, order="Date") })
-names(binariauto) <- names(binned)
+binariauto <- lapply(binned, arimaF, order="Date")
+binariauto
+```
 
+Summary information.
+
+```{r forecast3}
 ## Summarize the information
 binariauto.sum <- data.frame("Coef" = unlist(lapply(binariauto, function(x){ coef(x)["intercept"]})), "SE" = unlist(lapply(binariauto, function(x) sqrt(x$var.coef["intercept", "intercept"]))))
+binariauto.sum
 ```
+
+
+# ARIMA not binned
+
+Fit ARIMA model with automatic selection of parameters without binning the data by day.
+
+## ARIMA (0, 0, 0)
+
+ARIMA (0, 0, 0) results.
+
+```{r notBin1}
+arimed <- lapply(names(all), function(x) { arimaE(all[[x]], x) })
+names(arimed) <- names(all)
+arimed
+```
+
+Summary information.
+
+```{r notBin1sum}
+## Summarize the information
+arimed.sum <- data.frame("Coef" = unlist(lapply(arimed, function(x){ coef(x)["intercept"]})) * 288, "SE" = unlist(lapply(arimed, function(x) sqrt(x$var.coef["intercept", "intercept"]))) * 288 )
+arimed.sum
+```
+
+
+## Auto ARIMA: (3, 0, 3)
+
+Auto ARIMA results.
+
+```{r notBin2}
+## Fitting with auto-arima. Models were either ARIMA(2, 0, 3) or ARIMA(3, 0, 3).
+arimed2 <- lapply(all, arimaF)
+arimed2
+```
+
+Summary information.
+
+```{r notBin2sum}
+## Summarize the information
+arimed2.sum <- data.frame("Coef" = unlist(lapply(arimed2, function(x){ coef(x)["intercept"]})) * 288, "SE" = unlist(lapply(arimed2, function(x) sqrt(x$var.coef["intercept", "intercept"]))) * 288 )
+arimed2.sum
+```
+
+
+
 
 # Summary
 
 ```{r summary}
-simple
-binari.sum
-binariauto.sum
+fullSummary <- cbind(simple, binari.sum, binariauto.sum, arimed.sum, arimed2.sum)
+colnames(fullSummary) <- paste0(rep(c("Simple", "Binned", "BinnedAuto", "NotBin", "NotBinAuto"), each=2), rep(c("Coef", "SE"), 5))
+fullSummary
 ```
 
 
 * Using the predicted information does not change the estimate significantly as verified using t-tests with the data binned by day. 
 * Estimating via sample mean and the SE leads to lower SE values. This could be because of not taking into account that the data are correlated: what you did day 1 can affect day 2.
-* Using an ARIMA(0, 0, 1) (equivalent to MA(1)) we can get estimates (very similar to the _simple_ ones) which take into account some of the information from the previous day (MA estimate). The SE goes up though.
+* Using an ARIMA(0, 0, 0) on the data binned by day leads to the same estimates as the simple method but with larger SEs.
+* Using an ARIMA(0, 0, 1) (equivalent to MA(1)) on binned by day data we can get estimates (very similar to the _simple_ ones) which take into account some of the information from the previous day (MA estimate). The SE goes up though.
+* Using an ARIMA(0, 0, 0) on the data not binned by day leads to the same estimates as the simple method and smaller SEs.
+* Using an ARIMA(3, 0, 3) on the data not binned by day we get slightly different estimates with the largest SE of all methods. The smaller SE in the other methods could be due to under-estimating the variability in the mean number of steps per interval (per day if using binned data).
 
 # Using q1()
 
-Now I can get the estimate using either the means or the auto.arima model using q1().
+Now I can get the estimate using either the means or the auto.arima model (without binning by day) using q1().
 
 ```{r q1fun}
 ## Using the mean method
@@ -162,6 +222,8 @@ do.call(rbind, q1.aa)
 
 
 # Reproducibility
+
+This report was generated using [knitrBootstrap](https://github.com/jimhester/knitrBootstrap).
 
 ```{r reproducibility}
 sessionInfo()

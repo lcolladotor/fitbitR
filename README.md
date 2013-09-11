@@ -1,7 +1,7 @@
 fitbitR
 =======
 
-JHSPH Biostat qualifying exam 2013 take home: analyzing Fitbit activity data in 5 min intervals. The original version is available [here](https://github.com/russojhsph/fitbitR). This fork is for the re-take since I had to change a few things (mainly in the report).
+JHSPH Biostat qualifying exam 2013 take home re-take: analyzing Fitbit activity data in 5 min intervals. The original version is available [here](https://github.com/russojhsph/fitbitR). This fork is for the re-take since I had to change a few things (mainly in the report).
 
 
 ## Installation instructions

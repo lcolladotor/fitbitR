@@ -19,7 +19,7 @@ preprocess <- function(input) {
 	if(!is.matrix(input)) stop("'input' must be a matrix.")
 	
 	## Re-arrange the data into a data.frame with 3 columns: Interval, Date, and nSteps
-	require(reshape2)
+	library(reshape2)
 	data <- melt(input, varnames = c("Interval", "Date"), value.name = "nSteps")
 	
 	## Fix the dates

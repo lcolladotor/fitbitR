@@ -22,6 +22,9 @@
 
 fitbitPred <- function(data, method) {
 	if(!method %in% c("poisson", "lm", "means", "overall-mean")) stop("'method' is not specified correctly")
+		
+	## Pleasing R CMD check
+	Interval <- Day <- nSteps <- NULL
 	
 	## Separate missing vs complete data
 	idx <- complete.cases(data)
@@ -29,12 +32,15 @@ fitbitPred <- function(data, method) {
 	datana <- data[!idx,]	
 	
 	if(method == "means") {
-		require(plyr)
+		library(plyr)
 		## Get the means from the observed data grouped by Interval & Day
 		means <- ddply(datac, .(Interval, Day), summarize, meanNsteps = mean(nSteps))
 		
 		## Helper function that basically subsets the means summarized data and finds the one with which to replace the missing observation.
 		findMean <- function(int, d, dat=means) {
+			## Pleasing R CMD check
+			Interval <- Day <- NULL
+			
 			res <- subset(dat, Interval==int & Day==d)$meanNsteps
 			return(res)
 		}
@@ -43,7 +49,7 @@ fitbitPred <- function(data, method) {
 		pred <- apply(datana[, c("Interval", "Day")], 1, function(x) { findMean(as.integer(x[1]), x[2])})
 		
 	} else if (method == "lm") {
-		require(splines)
+		library(splines)
 		## Fit a linear model using natural splines for the interval
 		fit.lm <- lm(nSteps ~ ns(Interval, 10) + Date + Day, data=datac)
 		
@@ -54,7 +60,7 @@ fitbitPred <- function(data, method) {
 		pred[pred < 0] <- 0
 		
 	} else if (method == "poisson") {
-		require(splines)
+		library(splines)
 		## Fit a GLM with a Poisson link and natural splines
 		fit.glm <- glm(nSteps ~ ns(Interval, 10) + Date + Day, data=datac, family=poisson)
 		

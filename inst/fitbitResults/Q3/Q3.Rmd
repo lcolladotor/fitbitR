@@ -3,7 +3,7 @@ Question 3
 
 __Goal__: infer whether there are difference between weekdays and weekends in patterns of activity
 
-Written by [Russo](https://github.com/russojhsph/fitbitR).
+Written by [L. Collado-Torres](http://bit.ly/13MBoy8).
 
 To make it easier for me to write this document, the interpretation of each plot is included as comments in the R code. So toggle the R code to view the comments and interpretation if you are curious.
 
@@ -12,8 +12,8 @@ To make it easier for me to write this document, the interpretation of each plot
 ```{r setup}
 ## Packages used
 library(fitbitR)
-require(ggplot2)
-require(mgcv)
+library(ggplot2)
+library(mgcv)
 
 ## Load the data
 data <- preprocess(fitbitData)
@@ -121,6 +121,8 @@ summary(q3.dow$fit)
 
 
 # Reproducibility
+
+This report was generated using [knitrBootstrap](https://github.com/jimhester/knitrBootstrap).
 
 ```{r reproducibility}
 sessionInfo()

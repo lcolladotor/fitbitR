@@ -1,7 +1,7 @@
 ## Setup
 library(fitbitR)
-require(shiny)
-require(ggplot2)
+library(shiny)
+library(ggplot2)
 
 ## Main shiny function
 shinyServer(function(input, output) {
@@ -67,7 +67,7 @@ shinyServer(function(input, output) {
 	})	
 	output$q1acf <- renderPlot({
 		data <- predSet()
-		q1.acf <- q1(data, "auto.arima")
+		q1.acf <- q1(data, "auto.arima", acfOnly=TRUE)
 	})	
 	output$q1aa <- renderPrint({
 		data <- predSet()

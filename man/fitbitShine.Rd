@@ -7,7 +7,7 @@
 \arguments{
   \item{port}{The TCP port that the application should
   listen on. Defaults to port 8100. (Taken from
-  \link{shiny::runApp})}
+  \link[shiny]{runApp})}
 
   \item{launch.browser}{If \code{TRUE}, the system's
   default web browser will be launched automatically after
@@ -26,11 +26,14 @@
 \details{
   This function runs the Shiny application including in
   this package. It is basically a wrapper for
-  \link{shiny::runApp}.
+  \link[shiny]{runApp}.
 }
 \examples{
+\dontrun{
+## Open the Shiny application
 fitbitShine()
 ## Remember to cancel the command to get back to the R console once you are done analyzing your own data.
+}
 }
 \references{
   For more information on what a Shiny app is check

@@ -20,11 +20,16 @@
 q3 <- function(data, by, plot=TRUE) {
 	if(!by %in% c("weekend", "dow")) stop("'by' is incorrectly specified.")
 	## Libs required
-	require(mgcv)
+	library(mgcv)
+	
+	## Pleasing R CMD check
+	Interval <- nSteps <- Weekend <- Day <- NULL
+	ggplot <- aes <- geom_point <- facet_grid <- stat_smooth <- ylab <- function(x) { x }
+	rm(ggplot, aes, geom_point, facet_grid, stat_smooth, ylab)
 	
 	if(plot) {
 		## Plotting software
-		require(ggplot2)
+		library(ggplot2)
 	}	
 	
 	## Get the estimate and SD

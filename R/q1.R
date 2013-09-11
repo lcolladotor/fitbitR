@@ -5,6 +5,7 @@
 #' @param data A data set just like the one produced from \link{preprocess}.
 #' @param method Must be \code{mean} or \code{auto.arima}.
 #' @param acf If \code{TRUE} and \code{method} is set to \code{auto.arima} then an autocorrelation plot of the data binned by date is plotted.
+#' @param acfOnly If \code{TRUE} and \code{acf=TRUE} then only the acf plot is made.
 #'
 #' @details Check \link{reproduceAnalysis} with \code{step} set to \code{Q1} for more details on estimating the steps taken per day.
 #'
@@ -21,50 +22,58 @@
 #' @export
 #' @seealso \link{binDay}
 
-q1 <- function(data, method, acf=TRUE) {
+q1 <- function(data, method, acf=TRUE, acfOnly=FALSE) {
 	if(!method %in% c("mean", "auto.arima")) stop("'method' is incorrectly specified.")
-	
-	## Summarize the data by day
-	datab <- binDay(data)
-	## Drop NA's which can affect the df for the t-dist
-	datab <- datab[complete.cases(datab), ]
-	
+		
 	## Get the estimate and SD
 	if(method == "mean") {
+		## Summarize the data by day
+		datab <- binDay(data)
+		## Drop NA's which can affect the df for the t-dist
+		datab <- datab[complete.cases(datab), ]
+		
 		estimate <- mean(datab$nSteps, na.rm=TRUE)
 		est.se <- sd(datab$nSteps, na.rm=TRUE) / sqrt(nrow(datab))
 	} else if (method == "auto.arima") {
 		## Libs required
-		require(xts)
-		require(forecast)
+		library(forecast)
+		library(xts)
+		datab <- data[complete.cases(data), ]
 		
 		## Build the ts object
-		datac <- datab[complete.cases(datab),]
-		ts.c <- xts(datac$nSteps, order.by=datac$Date)
+		ts.c <- xts(datab$nSteps, order.by=datab$Time)
 		
 		## Autocorrelation plot
-		if(acf) acf(ts.c, main="Autocorrelation plot for data binned by Date")
+		if(acf) acf(ts.c, main="Autocorrelation plot for number of steps")
 		
 		## Fit the auto.arima model
-		fit.a <- auto.arima(ts.c)
+		if(!acfOnly) {
+			fit.a <- auto.arima(ts.c)
 		
-		## Get the estimate
-		estimate <- coef(fit.a)["intercept"]
-		names(estimate) <- NULL
-		est.se <- sqrt(fit.a$var.coef["intercept", "intercept"])
+			## Get the estimate
+			estimate <- 288 * coef(fit.a)["intercept"]
+			names(estimate) <- NULL
+			est.se <- 288 * sqrt(fit.a$var.coef["intercept", "intercept"])
+		}
+		
 	}
 	
-	## CI using a t-dist.
-	l <- estimate - qt(0.975, df=nrow(datab)) * est.se
-	u <- estimate + qt(0.975, df=nrow(datab)) * est.se
-	
-	## Build output
-	res <- c("Estimate"=estimate, "SE"=est.se, "95% CI:L"=l, "95% CI:U"=u)
-	
-	## Add the model fit in case of auto.arima
-	if(method == "auto.arima") {
-		res <- list("Estimate"=res, "Fit"=fit.a)
+	if(acfOnly){
+		res <- NULL
+	} else {
+		## CI using a t-dist.
+		l <- estimate - qt(0.975, df=nrow(datab)) * est.se
+		u <- estimate + qt(0.975, df=nrow(datab)) * est.se
+
+		## Build output
+		res <- c("Estimate"=estimate, "SE"=est.se, "95% CI:L"=l, "95% CI:U"=u)
+
+		## Add the model fit in case of auto.arima
+		if(method == "auto.arima") {
+			res <- list("Estimate"=res, "Fit"=fit.a)
+		}
 	}
+	
 	
 	## Done!
 	return(res)

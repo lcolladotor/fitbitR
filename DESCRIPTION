@@ -1,7 +1,7 @@
 Package: fitbitR
 Title: JHSPH Biostat qualifying exam 2013 take home re-take by L.
     Collado-Torres.
-Version: 0.2
+Version: 0.3
 Date: 2013-09-11
 Authors@R: c(person("Leonardo", "Collado-Torres", role = c("aut", "cre"), email
     = "lcollado@jhsph.edu"))
@@ -26,7 +26,9 @@ Suggests:
     forecast,
     mgcv,
     gridExtra,
-    xtable
+    xtable,
+    knitrBootstrap (>= 0.8.0),
+    ggplot2
 VignetteBuilder: knitr
 Collate:
     'fitbitR-package.R'

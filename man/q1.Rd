@@ -2,7 +2,7 @@
 \alias{q1}
 \title{Estimate the average number of steps taken per day}
 \usage{
-  q1(data, method, acf = TRUE)
+  q1(data, method, acf = TRUE, acfOnly = FALSE)
 }
 \arguments{
   \item{data}{A data set just like the one produced from
@@ -13,6 +13,9 @@
   \item{acf}{If \code{TRUE} and \code{method} is set to
   \code{auto.arima} then an autocorrelation plot of the
   data binned by date is plotted.}
+
+  \item{acfOnly}{If \code{TRUE} and \code{acf=TRUE} then
+  only the acf plot is made.}
 }
 \value{
   A vector with the estimate, it's SE, and a 95% CI

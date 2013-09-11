@@ -19,6 +19,11 @@
 
 q2 <- function(data, method, plot=TRUE) {
 	if(!method %in% c("mean", "gam")) stop("'method' is incorrectly specified.")
+		
+	## Pleasing R CMD check
+	Interval <- nSteps <- NULL
+	ggplot <- aes <- geom_point <- stat_smooth <- ylab <- function(x) { x }
+	rm(ggplot, aes, geom_point, stat_smooth, ylab)
 	
 	## Drop NA's
 	data <- data[complete.cases(data), ]
@@ -45,7 +50,7 @@ q2 <- function(data, method, plot=TRUE) {
 			lines(y=est + est.se, x=unique(data$IntS), lty=1, col="light blue")
 			
 			## Axis
-			axis(1, las=2, at=12*0:287, lab=unique(data$Interval)[1 + 12*0:287])
+			axis(1, las=2, at=12*0:287, labels=unique(data$Interval)[1 + 12*0:287])
 			axis(2, las=1, at=50*0:grange[2])
 
 		}
@@ -53,7 +58,7 @@ q2 <- function(data, method, plot=TRUE) {
 			
 	} else if (method == "gam") {
 		## Libs required
-		require(mgcv)
+		library(mgcv)
 		
 		## Fit the model and then get the estimate for each interval along with the SE
 		fit <- gam(nSteps ~ s(IntS, bs="cr"), data=data, family=quasipoisson)
@@ -64,7 +69,7 @@ q2 <- function(data, method, plot=TRUE) {
 		
 		if(plot) {
 			## Plotting software
-			require(ggplot2)
+			library(ggplot2)
 			
 			## Make the plot
 			p <- ggplot(data, aes(x=Interval, y=nSteps)) + geom_point(size=0.5, na.rm=TRUE) + stat_smooth(method=gam, formula= y ~ s(x, bs="cr"), na.rm=TRUE, family=quasipoisson) + ylab("Number of steps")

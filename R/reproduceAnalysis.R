@@ -11,58 +11,74 @@
 #' @return The directory \code{fitbitResults} inside your working directory with all the analysis steps reproduced.
 #'
 #'
-#' @examples reproduceAnalysis(step="EDA")
+#' @examples 
+#' ## Reproduce the EDA portion
+#' reproduceAnalysis(step="EDA")
+#' 
+#' \dontrun{
+#' ## Reproduce the entire analysis
+#' reproduceAnalysis(step="all")
+#' }
 #' @export
 #' @references knitr bootstrap html format from https://github.com/jimhester/knitr_bootstrap
 
 reproduceAnalysis <- function(step="all", verbose=TRUE, browse=TRUE) {
 	if(!step %in% c("all", "EDA", "pred", "Q1", "Q2", "Q3")) stop("'step' is not a recognized option.")
+		
+	## Save start time for getting the total processing time
+	startTime <- Sys.time()
 	
 	if(verbose) message("Setting up.")
 	# Required packages	
-	require(knitr)
-	require(markdown)
+	library(knitr)
+	library(markdown)
+	library(knitrBootstrap)
 			
 	## For super-coolness, make sure that the user has the correct version of the markdown package.
 	if(!"header" %in% formalArgs(markdownToHTML)) {
 		stop("Your version of the markdown package is outdated. Please updated it using: library(devtools); install_github(username='rstudio', repo='markdown')")
 	}	
 	
-	## Locate the nice header
-	boot <- system.file("knitr_bootstrap.html", package="fitbitR")
-	
 	## Save the working directory
 	wdir <- getwd()
 			
-	## Copy script files to your current working directory
+	## Build folder structure
 	root <- "fitbitResults"
+	if(step == "all") {
+		steps <- c("EDA", "pred", "Q1", "Q2", "Q3")
+	} else {
+		steps <- step
+	}
+	for(i in steps) {
+		dir.create(file.path(root, i), showWarnings=FALSE, recursive=TRUE)
+	}
+	
+	## Identify srcdir
 	srcdir <- system.file(root, package="fitbitR")
-	xx <- file.copy(from=srcdir, to=wdir, recursive=TRUE)
-	if(!xx) stop("Copying files to your working directory did not work.")
-		
+	
 	## EDA
 	if(step %in% c("EDA", "all")) {
-		.runStep("EDA", verbose, wdir, root, boot, browse)
+		.runStep("EDA", verbose, wdir, root, browse, srcdir)
 	}
 	
 	## Pred
 	if(step %in% c("pred", "all")) {
-		.runStep("pred", verbose, wdir, root, boot, browse)
+		.runStep("pred", verbose, wdir, root, browse, srcdir)
 	}
 	
 	## Question 1
 	if(step %in% c("Q1", "all")) {
-		.runStep("Q1", verbose, wdir, root, boot, browse)
+		.runStep("Q1", verbose, wdir, root, browse, srcdir)
 	}
 	
 	## Question 2
 	if(step %in% c("Q2", "all")) {
-		.runStep("Q2", verbose, wdir, root, boot, browse)
+		.runStep("Q2", verbose, wdir, root, browse, srcdir)
 	}
 	
 	## Question 3
 	if(step %in% c("Q3", "all")) {
-		.runStep("Q3", verbose, wdir, root, boot, browse)
+		.runStep("Q3", verbose, wdir, root, browse, srcdir)
 	}
 
 	
@@ -72,13 +88,16 @@ reproduceAnalysis <- function(step="all", verbose=TRUE, browse=TRUE) {
 	## Done =)
 	if(verbose)	{
 		message("Done!")
-		print("Total run time:")
-		print(proc.time())
+		totalTime <- diff(c(startTime, Sys.time()))
+		print("Total time spent reproducing the analysis:")
+		print(totalTime)
 	}
 	
+	
+	return(invisible(NULL))
 }
 ## Helper function that knits a specific part of the analysis
-.runStep <- function(curstep, verbose, wdir, root, boot, browse) {
+.runStep <- function(curstep, verbose, wdir, root, browse, srcdir) {
 	if(verbose) message(paste("Running", curstep, "step."))
 	
 	
@@ -87,7 +106,10 @@ reproduceAnalysis <- function(step="all", verbose=TRUE, browse=TRUE) {
 	runDir <- file.path(wdir, root, curstep)
 	setwd(runDir)
 	
+	## Identify Rmd file to use
+	input <- paste0(file.path(srcdir, curstep, curstep), ".Rmd")
+	
 	## Knit and be done
-	knit2html(paste0(curstep, ".Rmd"), header=boot)
+	knit_bootstrap(input=input, code_style='Brown Paper', chooser=c('boot', 'code'), show_code=FALSE)
 	if (browse) browseURL(paste0(curstep, ".html"))
 }

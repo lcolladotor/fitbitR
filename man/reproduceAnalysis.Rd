@@ -34,7 +34,13 @@
   means.
 }
 \examples{
+## Reproduce the EDA portion
 reproduceAnalysis(step="EDA")
+
+\dontrun{
+## Reproduce the entire analysis
+reproduceAnalysis(step="all")
+}
 }
 \references{
   knitr bootstrap html format from

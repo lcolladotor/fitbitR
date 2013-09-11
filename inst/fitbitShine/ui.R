@@ -41,7 +41,7 @@ shinyUI(pageWithSidebar(
 				h4("Estimate the average number of steps taken per day"),
 				h5("Estimate using the mean for data binned by day"),
 				verbatimTextOutput("q1mean"),
-				h5("Estimate using an ARIMA model for data binned by day"),
+				h5("Estimate using an ARIMA model on the number of steps per interval (aka, not binned by day!)"),
 				plotOutput("q1acf"),
 				verbatimTextOutput("q1aa")
 			),
