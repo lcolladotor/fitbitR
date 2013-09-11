@@ -114,7 +114,7 @@ Fitbit\cite{fitbit} is one of the popular devices on the market for collecting p
 
 In particular, we have data from a single individual for a period of two months. As shown in Figure \ref{fig:eda} (top) out of the 61 days, 8 are missing (shown in gray) with no obvious missing pattern. This plot also allows us to check for any week patterns. For example, this individual had an irregular week in mid October as (s)he was not as active at 8 am compared to other weeks. Visualizing the data in 24 hour circular clock makes it much easier to notice the hours of the day when someone is active, but has the caveat of not showing missing observations. In particular, this individual is regularly active from 6 am to 7pm on weekdays as shown in Figure \ref{fig:eda} (bottom). Similarly, this person is mostly active from 8 am to 9pm on weekends. Furthermore, Fridays seem to fall out of the usual weekday activity pattern. 
 
-Overall, there is indication of a difference in activity patterns between weekends and weekdays. Figure \ref{fig:eda} (both) shows that the high activity peaks are more consistent on weekdays although they do change by date, versus the high peaks on the weekends which are more variable.
+Overall, there is strong indication of a difference in activity patterns between weekends and weekdays. Figure \ref{fig:eda} (both) shows that the high activity peaks are more consistent on weekdays although they do change by date, versus the high peaks on the weekends which are more variable.
 
 
 
@@ -126,8 +126,8 @@ Overall, there is indication of a difference in activity patterns between weeken
 
 \subsection*{Predicting missing observations}
 
-Four methods for predicting the missing observations have been implemented in \texttt{fitbitR}\cite{fitbitR}. The first one, \emph{overall-mean}, simply replaces the observations by the overall mean. The second one, \emph{means}, replaces the missing observations by the mean from similar observations: those from the same interval and day of the week. The third one, \emph{lm}, fits a linear regression model with a 10 degree of freedom natural spline on the Interval covariate, date and day of the week (dow) using the following model for the number of steps $Y_i$:
-\[ Y_i = \beta_0 + \sum_{j=1}^{10} \beta_j \text{ns}_{ij} + \beta_{11}\text{date}_i + \beta_{12}\text{dow}_i + \epsilon_i \]
+Four methods for predicting the missing observations have been implemented in \texttt{fitbitR}\cite{fitbitR}. The first one, \emph{overall-mean}, simply replaces the observations by the overall mean. The second one, \emph{means}, replaces the missing observations by the mean from similar observations: those from the same interval and day of the week. The third one, \emph{lm}, fits a linear regression model with a 10 degree of freedom natural spline on the Interval covariate, date and day of the week (dow) using the following model for the number of steps $Y_i$, $i = 1, 2, \ldots, n$:
+\[ Y_i = \beta_0 + \sum_{j=1}^{10} \beta_j \text{ns}_{j}(\text{interval}_i) + \beta_{11}\text{date}_i + \beta_{12}\text{dow}_i + \epsilon_i \]
 The predicted values are truncated at 0 for any negative predictions (if any). The fourth method, \emph{poisson}, fits a Poisson GLM using the same covariate structure as the \emph{lm} method (without $\epsilon_i$ and with the appropriate link function). 
 The four methods, among others\footnote{Check \texttt{reproduceAnalysis("pred")} for more information.}, were evaluated by training on 70\% of the non-missing data and predicting on the remaining 30\%. The error measure used is the root mean square prediction error (RMSPE). 
 
@@ -148,9 +148,9 @@ We found that the \emph{lm} and \emph{poisson} methods were practically tied but
 
 \subsection*{Average number of steps taken per day}
 
-Once the data is binned by day, the straightforward method to estimate the average number of steps taken by day is by calculating the sample mean. The problem with this method is that it ignores the correlation in the number of steps taken between day $i$ and day $i + 1$. To deal with this structure, we fitted several ARIMA models\cite{autoarima} on both the number of steps by interval and the data binned by day before choosing to use an ARIMA(3, 0, 3) model with the interval data (not binned). 
+Once the data is binned by day, the straightforward method to estimate the average number of steps taken by day is using the sample mean. The problem with this estimator is that it ignores the correlation in the number of steps taken between day $i$ and day $i + 1$. To deal with this structure, we fitted several ARIMA models\cite{autoarima} on both the number of steps by interval and the data binned by day before choosing to use an ARIMA(3, 0, 3) model with the interval data (not binned). 
 
-While the naive method has lower standard errors than when using the ARIMA(3, 0, 3) model, we argue that this is because the naive model underestimates the actual number of steps taken per day by assuming that the measurements are independent. The results are shown in Table \ref{tab1} for the \textbf{original} data and the four prediction methods. Note that there were no significant differences (t-tests for the difference in sample mean\footnote{Check \texttt{reproduceAnalysis("Q1")} for more information.}) between the original data and the predicted sets.
+The naive method has lower standard errors than those from the ARIMA(3, 0, 3) model, presumably because the naive model underestimates the actual number of steps taken per day by assuming that the measurements are independent. The results are shown in Table \ref{tab1} for the \textbf{original} data and the four prediction methods. Note that there were no significant differences (t-tests for the difference in sample mean\footnote{Check \texttt{reproduceAnalysis("Q1")} for more information.}) between the original data and the predicted sets.
 
 <<q1, results='asis'>>=
 ## Complete predictions
@@ -168,7 +168,7 @@ q1.aa <- lapply(all, function(x) {
     y$Estimate
 })
 q1 <- do.call(rbind, q1.aa)
-print(xtable(q1, caption="Estimated average number of steps taken per day using an ARIMA(3, 0, 3) model on the unbinned data. The estimate, standard error and 95 percent confidence intervals (based on the t-distribution) are shown for fitting the ARIMA(3, 0, 3) model to the original data with missing observations as well as the completed data using the four prediction methods.", lab="tab1"))
+print(xtable(q1, caption="Estimated average number of steps taken per day using an ARIMA(3, 0, 3) model on the interval data (not binned). The estimate, standard error and 95 percent confidence intervals (based on the t-distribution) are shown for fitting the ARIMA(3, 0, 3) model to the original data with missing observations as well as the completed data using the four prediction methods previously described.", lab="tab1"))
 @
 
 \subsection*{Average activity pattern}
@@ -207,7 +207,7 @@ pval <- pt(ts, q3.weekend$fit$df.null, lower=FALSE) * 2
 
 To determine whether there is a difference in activity patterns between weekdays and weekends, we fitted a GAM model as described previously but with an additional indicator covariate \emph{Weekend} differentiating weekdays (0) from weekends (1). The estimate of the \emph{Weekend} coefficient --in the log scale-- is \Sexpr{coef} 95\% CI:\Sexpr{finalCI} based on the $t$-distribution with \Sexpr{q3.weekend$fit$df.null} degrees of freedom. It can be interpreted as a \Sexpr{round(100 * (exp(coef)-1), 2)} percent change associated with a weekend vs weekday. Since 0 is not included in the 95\% CI, there is a significant difference in the activity patterns between weekdays and weekends. 
 
-In Figure \ref{fig:qtwoThree} (bottom) we can notice how this individual has two activity peaks during weekdays (7-9 am and 5-6 3pm) with a steady plateau in between them (10 am to 4pm). On weekends, this individual gets active later in the morning and keeps a rather similar activity level during the day (except for brunch time: 10 am to noon) and eventually stops being active later on the day compared to weekdays.
+In Figure \ref{fig:qtwoThree} (bottom) we can notice how this individual has two activity peaks during weekdays (7-9 am and 5-6 3pm) with a steady plateau in between them (10 am to 4pm). On weekends, this individual gets active later in the morning and keeps a rather similar activity level during the day (except for brunch time: 10 am to noon) and eventually stops being active later on the day (around 10 pm) compared to weekdays.
 
 This result was invariant to whether the \textbf{original} data or one with predicted values was used\footnote{Most easily noted when using \texttt{fitbitShine()} in tab Q3 and changing the prediction method.}.
 

@@ -11,7 +11,8 @@ JHSPH Biostat qualifying exam 2013 take home re-take: analyzing Fitbit activity 
 install.packages("devtools")
 
 ## Pre-requisites from CRAN
-install.packages(c("knitr", "markdown", "shiny", "reshape2", "splines", "xts", "randomForest", "cvTools", "car", "plyr", "forecast", "mgcv", "gridExtra", "xtable", "ggplot2"))
+install.packages(c("knitr", "markdown", "shiny", "reshape2", "splines", "xts", "randomForest",
+	"cvTools", "car", "plyr", "forecast", "mgcv", "gridExtra", "xtable", "ggplot2"))
 
 ## GitHub reqs
 library(devtools)
