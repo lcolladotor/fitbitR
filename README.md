@@ -32,7 +32,7 @@ You can either find the report [here](https://github.com/lcolladotor/fitbitR/blo
 browseVignettes("fitbitR")
 ```
 
-Viewing the report from R has the advantage of being able of seeing the R code extracted from the vignette.
+Viewing the report from R has the advantage of seeing the R code extracted from the vignette.
 
 ## Shiny Application
 
