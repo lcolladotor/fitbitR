@@ -25,7 +25,7 @@
 % Bibliography
 \usepackage[style=numeric,firstinits=true]{biblatex}
 % Specify bib files
-\addbibresource{fitbitR-russo.bib}
+\addbibresource{fitbitR-lcolladotor.bib}
 
 % Color
 \usepackage{color}
@@ -36,7 +36,7 @@
 % Page style definition
 \pagestyle{fancy}
 % Customize this to your liking.
-\lhead{By \myurlshort{https://github.com/russojhsph/fitbitR}{Russo}}\chead{}\rhead{}\lfoot{}\cfoot{\thepage}\rfoot{\today}
+\lhead{By \myurlshort{https://github.com/lcolladotor/fitbitR}{L. Collado-Torres}}\chead{}\rhead{}\lfoot{}\cfoot{\thepage}\rfoot{\today}
 
 % Line space
 \usepackage{setspace}
@@ -83,7 +83,7 @@ options(width=70)
 
 % Actual title
 { \bfseries From reproducibly analyzing Fitbit activity data to visualizing results.}\\%[0.3cm]
-\textsc{JHSPH Biostat Qualifying Exam 2013 Take Home}\\
+\textsc{JHSPH Biostat Qualifying Exam 2013 Take Home re-take}\\
 \normalsize
 \end{center}
 % \end{titlepage}

@@ -1,15 +1,16 @@
 Package: fitbitR
-Title: JHSPH Biostat qualifying exam 2013 take home by Russo.
-Version: 0.1
-Authors@R: c(person("Russo", "Developer", role = c("aut", "cre"), email =
-    "russo.jhsph@gmail.com"))
+Title: JHSPH Biostat qualifying exam 2013 take home re-take by L.
+    Collado-Torres.
+Version: 0.2
+Authors@R: c(person("Leonardo", "Collado-Torres", role = c("aut", "cre"), email
+    = "lcollado@jhsph.edu"))
 Description: JHSPH Biostat qualifying exam 2013 take home: analyzing Fitbit
-    activity data in 5 min intervals. For anonymous purposes, the author is
-    Russo.
+    activity data in 5 min intervals.
 Depends:
     R (>= 3.0.0)
 License: GPL-2
 LazyData: true
+URL: https://github.com/lcolladotor/fitbitR
 Suggests:
     knitr,
     markdown (>= 0.5.4),
