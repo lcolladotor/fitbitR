@@ -23,6 +23,16 @@ library(devtools)
 install_github("fitbitR", "lcolladotor")
 ```
 
+## Report (package vignette)
+
+You can either find the report [here](https://github.com/lcolladotor/fitbitR/blob/master/inst/doc/fitbitR-lcolladotor.pdf) hosted by GitHub or you can view it from R by running:
+
+
+```S
+browseVignettes("fitbitR")
+```
+
+Viewing the report from R has the advantage of being able of seeing the R code extracted from the vignette.
 
 ## Shiny Application
 
